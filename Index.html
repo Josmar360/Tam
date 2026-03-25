@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi Tamarita :3</title>
+    <style>
+        /* Fondo con una paleta de colores bonitos (Dawn Magic) */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; 
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff0f5 0%, #fff8dc 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden; 
+        }
+
+        /* Pantalla inicial con el panda flotante y pulsante */
+        #inicio {
+            text-align: center;
+            position: relative;
+            transition: opacity 1s ease, filter 1s ease;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh; 
+        }
+        
+        #panda {
+            width: 250px;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+            animation: flotar 3.5s ease-in-out infinite, pulseGlow 1.8s infinite alternate;
+        }
+        
+        #panda:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        /* Contenedor de la galería estilo Pinterest (Masonry) */
+        #galeria {
+            display: none; 
+            width: 100%;
+            max-width: 1000px;
+            column-count: 2;
+            column-gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0; 
+            transition: opacity 1s ease;
+            margin-top: 20px;
+            z-index: 2;
+        }
+
+        @media (min-width: 768px) {
+            #galeria {
+                column-count: 3;
+            }
+        }
+
+        /* Estilos de cada foto con animación de despliegue */
+        .foto {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            break-inside: avoid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: rotate(5deg) scale(0.5) translateY(50px);
+            animation: aparecerFotoUnfold 0.8s ease-out forwards;
+        }
+        
+        .foto:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: #b8860b;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            opacity: 0;
+            animation: aparecerTexto 1s ease-out forwards 0.5s; 
+        }
+
+        /* --- Animaciones CSS --- */
+
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes pulseGlow {
+            0% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)); }
+            100% { filter: drop-shadow(0 0 22px rgba(255, 215, 0, 1)); }
+        }
+
+        @keyframes aparecerFotoUnfold {
+            to {
+                opacity: 1;
+                transform: rotate(0deg) scale(1) translateY(0px);
+            }
+        }
+
+        @keyframes aparecerTexto {
+            to { opacity: 1; }
+        }
+
+        /* --- Partículas y Pétalos --- */
+        .sparkle, .ambientSparkle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .sparkle {
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #fff 0%, #ffd700 70%, rgba(255,255,255,0) 100%);
+            animation: sparkleAnim 1.2s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(1.6); opacity: 0; }
+        }
+
+        .ambientSparkle {
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #fff 0%, #ffd700 80%, rgba(255,255,255,0) 100%);
+            animation: ambientSparkleAnim 5s linear infinite;
+        }
+
+        @keyframes ambientSparkleAnim {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+            20% { opacity: 0.7; }
+            80% { opacity: 0.7; }
+            100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; }
+        }
+
+        /* Estilos de los pétalos de girasol que caen */
+        .petalo {
+            position: fixed;
+            top: -20px;
+            /* Degradado para parecer un pétalo de girasol */
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            /* Forma de pétalo/gota */
+            border-radius: 50% 0 50% 0;
+            pointer-events: none; /* No interfieren con el hover ni el scroll */
+            z-index: 100;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+            animation: caerPetalo linear infinite forwards;
+        }
+
+        @keyframes caerPetalo {
+            0% { 
+                transform: translate(0, 0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { 
+                /* Caen hasta abajo de la pantalla y se desplazan a los lados */
+                transform: translate(var(--desplazamientoX), 110vh) rotate(var(--rotacionFinal)); 
+                opacity: 0; 
+            }
+        }
+    </style>
+</head>
+<body onload="initMagic()">
+
+    <div id="inicio">
+        <h2>Toca al panda...</h2>
+        <img id="panda" src="image/0.png" alt="Panda con girasol" onclick="revelarSorpresa(event)">
+    </div>
+
+    <div id="galeria">
+        <img class="foto" src="image/1.png" alt="Ilustración 1" style="animation-delay: 0.1s">
+        <img class="foto" src="image/2.png" alt="Ilustración 2" style="animation-delay: 0.2s">
+        <img class="foto" src="image/3.png" alt="Ilustración 3" style="animation-delay: 0.3s">
+        <img class="foto" src="image/4.png" alt="Ilustración 4" style="animation-delay: 0.4s">
+        <img class="foto" src="image/5.png" alt="Ilustración 5" style="animation-delay: 0.5s">
+        <img class="foto" src="image/6.png" alt="Ilustración 6" style="animation-delay: 0.6s">
+        <img class="foto" src="image/7.png" alt="Ilustración 7" style="animation-delay: 0.7s">
+        <img class="foto" src="image/8.png" alt="Ilustración 8" style="animation-delay: 0.8s">
+    </div>
+
+    <script>
+        function initMagic() {
+            createAmbientSparkles();
+        }
+
+        function revelarSorpresa(event) {
+            const inicioDiv = document.getElementById('inicio');
+            const galeriaDiv = document.getElementById('galeria');
+            const panda = document.getElementById('panda');
+
+            panda.style.transform = 'scale(1.5)';
+            panda.style.filter = 'drop-shadow(0 0 50px rgba(255,215,0,1)) blur(5px)';
+            panda.style.opacity = '0.7';
+
+            createSparkles(event.clientX, event.clientY);
+
+            inicioDiv.style.filter = 'blur(10px)';
+            inicioDiv.style.opacity = '0';
+
+            setTimeout(() => {
+                inicioDiv.style.display = 'none';
+                galeriaDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    galeriaDiv.style.opacity = '1';
+                }, 50);
+                
+                document.body.style.justifyContent = 'flex-start';
+                
+                // Iniciar la lluvia de pétalos cuando la galería aparece
+                crearPetalos();
+                
+            }, 1000); 
+        }
+
+        function createSparkles(x, y) {
+            const numSparkles = 30; 
+            const container = document.getElementById('inicio');
+            
+            for (let i = 0; i < numSparkles; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                
+                sparkle.style.left = `${x}px`;
+                sparkle.style.top = `${y}px`;
+                
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = 80 + Math.random() * 150; 
+                const destX = Math.cos(angle) * distance;
+                const destY = Math.sin(angle) * distance;
+                
+                sparkle.style.setProperty('--x', `${destX}px`);
+                sparkle.style.setProperty('--y', `${destY}px`);
+                
+                const duration = 0.6 + Math.random() * 0.6;
+                sparkle.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1200);
+            }
+        }
+
+        function createAmbientSparkles() {
+            const numAmbientSparkles = 15;
+            const container = document.getElementById('inicio');
+            
+            for (let i = 0; i < numAmbientSparkles; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('ambientSparkle');
+                
+                const x = 50 + Math.random() * 200;
+                const y = 50 + Math.random() * 200;
+                sparkle.style.left = `${x}px`;
+                sparkle.style.top = `${y}px`;
+                
+                const angle = Math.random() * 2 * Math.PI;
+                const destX = Math.cos(angle) * 50; 
+                const destY = Math.sin(angle) * 50;
+                
+                sparkle.style.setProperty('--x', `${destX}px`);
+                sparkle.style.setProperty('--y', `${destY}px`);
+                
+                sparkle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(sparkle);
+            }
+        }
+
+        // Nueva función para generar los pétalos cayendo
+        function crearPetalos() {
+            const numPetalos = 25; // Cantidad de pétalos en pantalla al mismo tiempo
+            
+            for (let i = 0; i < numPetalos; i++) {
+                let petalo = document.createElement('div');
+                petalo.classList.add('petalo');
+                
+                // Tamaño aleatorio del pétalo (entre 10px y 25px)
+                let tamaño = Math.random() * 15 + 10;
+                petalo.style.width = `${tamaño}px`;
+                petalo.style.height = `${tamaño}px`;
+                
+                // Posición horizontal inicial aleatoria
+                petalo.style.left = `${Math.random() * 100}vw`;
+                
+                // Variables para la animación CSS
+                // Desplazamiento lateral mientras cae (simulando viento)
+                let desplazamientoX = (Math.random() * 200 - 100) + 'px'; 
+                // Cuántas vueltas dará al caer
+                let rotacionFinal = (Math.random() * 720) + 'deg'; 
+                
+                petalo.style.setProperty('--desplazamientoX', desplazamientoX);
+                petalo.style.setProperty('--rotacionFinal', rotacionFinal);
+                
+                // Duración de la caída aleatoria (entre 6 y 12 segundos)
+                let duracion = Math.random() * 6 + 6;
+                petalo.style.animationDuration = `${duracion}s`;
+                
+                // Retraso aleatorio para que no caigan todos al mismo tiempo
+                petalo.style.animationDelay = `${Math.random() * 10}s`;
+                
+                document.body.appendChild(petalo);
+            }
+        }
+    </script>
+</body>
+</html>
